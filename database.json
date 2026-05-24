@@ -712,6 +712,29 @@
       "banned": false,
       "role": "Novato",
       "name": "insano en el free"
+    },
+    "5216711084329@s.whatsapp.net": {
+      "exp": 0,
+      "level": 0,
+      "limit": 15,
+      "money": 0,
+      "lastwork": 0,
+      "comandos": 0,
+      "afk": -1,
+      "afkReason": "",
+      "registered": false,
+      "birth": "No definido",
+      "pasatiempo": "No definido",
+      "genero": "No definido",
+      "description": "Sin descripción",
+      "marry": "",
+      "pareja": "Nadie",
+      "estadoCivil": "Soltero(a)",
+      "warn": 0,
+      "premium": false,
+      "banned": false,
+      "role": "Novato",
+      "name": "Charly bot"
     }
   },
   "chats": {
@@ -759,9 +782,9 @@
   "data": {
     "users": {
       "82906290606190@lid": {
-        "exp": 762,
+        "exp": 862,
         "level": 4,
-        "comandos": 69,
+        "comandos": 79,
         "afk": -1,
         "afkReason": "",
         "lastwork": 1779084992242,
@@ -786,6 +809,24 @@
         "afkReason": "",
         "lastwork": 0,
         "money": 0
+      },
+      "5216711084329@s.whatsapp.net": {
+        "exp": 50,
+        "level": 1,
+        "comandos": 5,
+        "afk": -1,
+        "afkReason": "",
+        "lastwork": 0,
+        "money": 0
+      },
+      "19749014659309@lid": {
+        "exp": 0,
+        "level": 0,
+        "comandos": 0,
+        "afk": -1,
+        "afkReason": "",
+        "lastwork": 0,
+        "money": 0
       }
     },
     "chats": {
@@ -796,10 +837,14 @@
       "120363420725623933@g.us": {
         "isBanned": false,
         "nsfw": true
+      },
+      "120363408849822490@g.us": {
+        "isBanned": false,
+        "nsfw": false
       }
     },
     "stats": {
-      "totalCommands": 70
+      "totalCommands": 85
     }
   }
 }

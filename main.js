@@ -4,8 +4,11 @@ import { xpRange } from "./core/system/initdb.js";
 import chalk from "chalk";
 
 export default async function main(sock, m, chatUpdate) {
+    global.charlyHandler = main;
+
     try {
         if (!m || m.type === 'reactionMessage' || m.type === 'protocolMessage') return;
+        // ... (todo el resto de tu código igualito abajo)
 
         // --- 1. ASEGURAR BASE DE DATOS ---
         // Si no existe la data, inicializamos lo mínimo para que no se detenga
