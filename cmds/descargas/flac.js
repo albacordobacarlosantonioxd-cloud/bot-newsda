@@ -20,7 +20,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
 
         // 📝 Diseño estético al estilo Charly Developer
         let info = `┏━━━━━━━━━━━━━━━━┓\n`
-        info += `┃   🎵 *YOUTUBE FLAC* ┃\n`
+        info += `┃       *FLAC* ┃\n`
         info += `┗━━━━━━━━━━━━━━━━┛\n\n`
         info += `📌 *TÍᴛᴜʟᴏ:* ${audio.title}\n`
         info += `⚙️ *Cᴀʟɪᴅᴀᴅ:* ${audio.quality}\n\n`
