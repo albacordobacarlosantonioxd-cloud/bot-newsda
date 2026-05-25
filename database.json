@@ -820,9 +820,9 @@
         "money": 0
       },
       "19749014659309@lid": {
-        "exp": 0,
+        "exp": 10,
         "level": 0,
-        "comandos": 0,
+        "comandos": 1,
         "afk": -1,
         "afkReason": "",
         "lastwork": 0,
@@ -844,7 +844,7 @@
       }
     },
     "stats": {
-      "totalCommands": 85
+      "totalCommands": 86
     }
   }
 }
