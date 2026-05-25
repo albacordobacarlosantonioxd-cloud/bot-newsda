@@ -14,8 +14,6 @@ var handler = async (m, { conn }) => {
 
     if (!q) return m.reply('✨ *Responde a un mensaje de "ver una sola vez" (view once) para revelarlo.*')
 
-    await m.react('🔥')
-
     try {
         // 2. Intentar descargar con el método inyectado del core 'q.download'
         let mediaBuffer = null
@@ -46,7 +44,6 @@ var handler = async (m, { conn }) => {
         }
 
         if (!mediaBuffer) {
-            await m.react('❌')
             return m.reply('❌ *No se pudo procesar el archivo. Es posible que ya haya expirado o fue abierto.*')
         }
 
@@ -55,27 +52,13 @@ var handler = async (m, { conn }) => {
         let isVideo = !!targetMsg.videoMessage || /video/.test(q.mimetype || (q.msg || q).mimetype || '')
         let mimeType = isVideo ? 'video' : 'image'
 
-        // 5. Estructura visual de Charly Developer
-        let info = `┏━━━━━━━━━━━━━━━━┓\n`
-        info += `┃  👁️‍🗨️ *REVELADOR VV* ┃\n`
-        info += `┗━━━━━━━━━━━━━━━━┛\n\n`
-        info += `✅ *Contenido desbloqueado*\n`
-        info += `📂 *Tipo:* ${isVideo ? 'Video MP4 🎥' : 'Imagen JPG 🖼️'}\n`
-        info += `🔒 *Estado:* Protección removida\n\n`
-        info += `━━━━━━━━━━━━━━━━━━━━\n`
-        info += `⚡ *𝘽𝙮 Charly Developer*`
-
-        // 6. Enviar el archivo liberado al chat
+        // 5. Enviar el archivo liberado al chat sin texto ni captions
         await conn.sendMessage(m.chat, { 
-            [mimeType]: mediaBuffer, 
-            caption: info 
+            [mimeType]: mediaBuffer
         }, { quoted: m })
-
-        await m.react('✅')
 
     } catch (e) {
         console.error("Error crítico dentro del Handler:", e)
-        await m.react('❌')
         m.reply('⚠️ *Error interno al procesar el descifrado.*')
     }
 }
