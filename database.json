@@ -735,6 +735,29 @@
       "banned": false,
       "role": "Novato",
       "name": "Charly bot"
+    },
+    "68801735467257@lid": {
+      "exp": 0,
+      "level": 0,
+      "limit": 15,
+      "money": 0,
+      "lastwork": 0,
+      "comandos": 0,
+      "afk": -1,
+      "afkReason": "",
+      "registered": false,
+      "birth": "No definido",
+      "pasatiempo": "No definido",
+      "genero": "No definido",
+      "description": "Sin descripción",
+      "marry": "",
+      "pareja": "Nadie",
+      "estadoCivil": "Soltero(a)",
+      "warn": 0,
+      "premium": false,
+      "banned": false,
+      "role": "Novato",
+      "name": "Luis Fernando"
     }
   },
   "chats": {
@@ -827,6 +850,15 @@
         "afkReason": "",
         "lastwork": 0,
         "money": 0
+      },
+      "68801735467257@lid": {
+        "exp": 20,
+        "level": 0,
+        "comandos": 2,
+        "afk": -1,
+        "afkReason": "",
+        "lastwork": 0,
+        "money": 0
       }
     },
     "chats": {
@@ -844,7 +876,7 @@
       }
     },
     "stats": {
-      "totalCommands": 86
+      "totalCommands": 88
     }
   }
 }
