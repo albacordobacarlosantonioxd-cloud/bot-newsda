@@ -9,7 +9,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     try {
         // 🚀 Petición directa a tu API en Vercel pasando la búsqueda completa
         console.log(`[Bot] Solicitando FLAC a tu API en Vercel para: ${query}`)
-        const { data } = await axios.get(`https://api-charly.vercel.app/api/download/flac?q=${encodeURIComponent(query)}`)
+        const { data } = await axios.get(`https://api-charly.vercel.app/api/download/flac?q=${encodeURIComponent(query)}&key=charly_a13c482754a556758132f2508469810486436c5b3d2d9132`)
 
         if (!data.status || !data.result) {
             await m.react('❌')
