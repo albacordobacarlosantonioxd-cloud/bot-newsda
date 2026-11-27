@@ -1,6 +1,9 @@
+import { MAX_LEVEL } from '../../core/system/initdb.js'
+
 var handler = async (m, { conn, user, db }) => {
     const userId = m.sender
     const name = user.name || m.pushName || 'Usuario'
+    const level = Math.min(MAX_LEVEL, Math.max(0, Math.floor(Number(user.level) || 0)))
     
     // Imagen de perfil
     const pp = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://cdn.yuki-wabot.my.id/files/2PVh.jpeg')
@@ -16,7 +19,7 @@ var handler = async (m, { conn, user, db }) => {
     profileText += `⸙ *Pasatiempo:* ${user.pasatiempo || 'No definido'}\n`
     profileText += `⚥ *Género:* ${user.genero || 'No definido'}\n`
     profileText += `♡ *Pareja:* ${user.marry ? '@' + user.marry.split('@')[0] : 'Soltero(a)'}\n\n`
-    profileText += `✿ *Nivel:* ${user.level || 0}\n`
+    profileText += `✿ *Nivel:* ${level}\n`
     profileText += `❀ *Ranking:* #${rank}\n\n`
     profileText += `⚡ *By Charly Developer*`
 

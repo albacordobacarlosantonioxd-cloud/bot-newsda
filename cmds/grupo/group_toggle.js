@@ -1,5 +1,5 @@
-var handler = async (m, { conn, isOwner, isAdmin, command }) => {
-    if (!(isOwner || isAdmin)) return m.reply('✨ *Solo administradores.*')
+var handler = async (m, { conn, isOwner, isAdmins, command }) => {
+    if (!(isOwner || isAdmins)) return m.reply('✨ *Solo administradores.*')
     const isClose = /close|cerrar/i.test(command)
     const type = isClose ? 'announcement' : 'not_announcement'
     
@@ -14,6 +14,7 @@ handler.help = ['open', 'close']
 handler.tags = ['group']
 handler.command = ['open', 'abrir', 'close', 'cerrar']
 handler.group = true
+handler.admin = true
 handler.botAdmin = true
 
 export default handler

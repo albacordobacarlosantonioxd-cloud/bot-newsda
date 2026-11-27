@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`*🏮 [ SISTEMA Charly ]*\n\n*Ingresa la URL del sitio web.*\n*Ejemplo:* ${usedPrefix + command} https://github.com/Charly-Bot`)
@@ -9,10 +9,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     await m.react('📸')
 
     try {
-        const key = "sasuke"
-        const apiUrl = `https://api.evogb.org/tools/ssweb?url=${encodeURIComponent(text)}&device=desktop&key=${key}`
-
-        const { data } = await axios.get(apiUrl)
+        const data = await evoGet('/tools/ssweb', { url: text, device: 'pc' })
 
         if (!data.status || !data.result) {
             await m.react('❌')

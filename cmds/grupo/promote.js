@@ -10,7 +10,7 @@ var handler = async (m, { conn, isAdmins, isOwner }) => {
     try {
         // 3. Ejecutar el ascenso
         await conn.groupParticipantsUpdate(m.chat, [user], 'promote')
-        m.reply('👑 ¡Felicidades! Ahora eres Admin.')
+        m.reply('👑 Usuario ascendido a administrador.')
         
     } catch (e) {
         console.error(e)

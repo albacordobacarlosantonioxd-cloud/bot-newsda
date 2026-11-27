@@ -1,16 +1,15 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`*🏮 [ SISTEMA Charly ]*\n\n*¿Qué stickers buscas?*\n*Ejemplo:* ${usedPrefix + command} Flork o enlace de Sticker.ly`)
 
     const isUrl = text.match(/sticker.ly/gi)
-    const key = "sasuke"
     await m.react('📦')
 
     if (isUrl) {
         // --- MODO DETALLE/DESCARGA ---
         try {
-            const { data } = await axios.get(`https://api.evogb.org/stickerly/detail?url=${encodeURIComponent(text)}&key=${key}`)
+            const data = await evoGet('/stickerly/detail', { url: text })
             if (!data.status) return m.reply('❌ No se pudo obtener el detalle de este paquete.')
 
             const res = data.result
@@ -40,7 +39,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     } else {
         // --- MODO BÚSQUEDA ---
         try {
-            const { data } = await axios.get(`https://api.evogb.org/stickerly/search?query=${encodeURIComponent(text)}&key=${key}`)
+            const data = await evoGet('/stickerly/search', { query: text })
             if (!data.status || data.result.length === 0) return m.reply('❌ No se encontraron paquetes de stickers.')
 
             let results = data.result.slice(0, 5) // Top 5

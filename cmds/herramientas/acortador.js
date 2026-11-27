@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     // Dividimos el texto para ver si el usuario puso un alias (ej: .tiny https://google.com mi-link)
@@ -9,12 +9,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     await m.react('🔗')
 
     try {
-        const key = "sasuke"
-        // Construimos la URL con el alias si es que el usuario lo puso
-        let apiUrl = `https://api.evogb.org/tools/shortlink?url=${encodeURIComponent(url)}&key=${key}`
-        if (alias) apiUrl += `&alias=${encodeURIComponent(alias)}`
-
-        const { data } = await axios.get(apiUrl)
+        const data = await evoGet('/tools/shortlink', { url, alias }, { includeApiKey: false })
 
         if (!data.status || !data.result) {
             await m.react('❌')

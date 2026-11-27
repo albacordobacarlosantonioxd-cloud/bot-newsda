@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     // Dividimos el texto para obtener el idioma de destino y el contenido
@@ -20,10 +20,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     await m.react('🌎')
 
     try {
-        const key = "sasuke"
-        const apiUrl = `https://api.evogb.org/tools/translate?text=${encodeURIComponent(txt)}&to=${lang}&key=${key}`
-
-        const { data } = await axios.get(apiUrl)
+        const data = await evoGet('/tools/translate', { text: txt, to: lang })
 
         if (!data.status || !data.result) {
             await m.react('❌')

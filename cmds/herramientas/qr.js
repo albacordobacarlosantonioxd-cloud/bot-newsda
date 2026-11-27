@@ -1,8 +1,8 @@
 import { default as makeWASocket, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys'
 import fs from 'fs'
 import path from 'path'
-import QRCode from 'qrcode'
 import pino from 'pino'
+import { createQr } from '../../core/qr.js'
 
 if (!global.conns) global.conns = new Map()
 if (!global.jndidb_qr) global.jndidb_qr = new Set()
@@ -45,7 +45,8 @@ var handler = async (m, { conn }) => {
             
             if (qr) {
                 let rutaQR = path.join(rutaSesion, 'clon_qr.png')
-                await QRCode.toFile(rutaQR, qr, { scale: 8 })
+                const terminalQr = await createQr(qr, rutaQR)
+                console.log(`[Clon ${idUsuario}] QR de vinculación:\n${terminalQr}`)
 
                 let infoQR = `┏━━━━━━━━━━━━━━━━┓\n`
                 infoQR += `┃    🖼️ *CÓDIGO QR* ┃\n`

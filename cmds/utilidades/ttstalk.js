@@ -1,4 +1,4 @@
-import axios from "axios"
+import { evoGet } from '../../core/evogb.js'
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
     let query = text ? text.trim() : (m.quoted?.text || null)
@@ -9,7 +9,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     try {
         // La URL exacta de tu captura
-        const { data } = await axios.get(`https://api.evogb.org/stalking/tiktok?username=${username}&key=sasuke`)
+        const data = await evoGet('/stalking/tiktok', { username })
 
         if (!data.status || !data.result) {
             await m.react('❌')

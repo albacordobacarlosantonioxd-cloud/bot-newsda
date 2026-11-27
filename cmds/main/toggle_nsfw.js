@@ -18,4 +18,6 @@ var handler = async (m, { text, chat, isAdmins, isOwner }) => {
 
 // Aquí cambiamos el comando principal a 'nsfw'
 handler.command = ['nsfw'] 
+handler.group = true
+handler.admin = true
 export default handler

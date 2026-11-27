@@ -1,11 +1,10 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, usedPrefix, command }) => {
     await m.react('📧')
 
     try {
-        const key = "sasuke"
-        const { data } = await axios.get(`https://api.evogb.org/tools/tempmail?key=${key}`)
+        const data = await evoGet('/tools/tempmail')
 
         if (!data.status || !data.result) {
             await m.react('❌')

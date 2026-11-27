@@ -24,6 +24,5 @@ handler.tags = ['group']
 handler.command = ['tag', 'hidetag', 'h']
 handler.group = true
 handler.admin = true
-handler.botAdmin = true
 
 export default handler

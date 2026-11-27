@@ -1,4 +1,4 @@
-mport axios from 'axios'
+import { evoPostForm } from '../../core/evogb.js'
 import { uploadToEvo } from '../../core/uploader.js'
 
 var handler = async (m, { conn }) => {
@@ -20,10 +20,7 @@ var handler = async (m, { conn }) => {
         if (!urlRemota) throw new Error('Error al subir la imagen al servidor.')
 
         // 3. Petición a la API de Upscale
-        const key = "sasuke"
-        const apiUrl = `https://api.evogb.org/tools/upscale?url=${encodeURIComponent(urlRemota)}&key=${key}`
-
-        const { data } = await axios.get(apiUrl)
+        const data = await evoPostForm('/tools/upscale', { method: 'url', url: urlRemota })
 
         if (!data.status || !data.result) {
             await m.react('❌')

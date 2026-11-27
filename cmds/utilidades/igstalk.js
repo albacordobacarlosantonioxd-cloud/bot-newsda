@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     let query = text ? text.trim() : (m.quoted?.text || null)
@@ -9,7 +9,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
 
     try {
         // Usamos el endpoint de instagram de EvoGB que pasaste
-        const { data } = await axios.get(`https://api.evogb.org/stalking/instagram?username=${username}&key=sasuke`)
+        const data = await evoGet('/stalking/instagram', { username })
 
         if (!data.status || !data.result) {
             await m.react('❌')

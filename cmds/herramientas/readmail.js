@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`*🏮 [ SISTEMA Charly ]*\n\n*Ingresa el correo para leer los mensajes.*\n*Ejemplo:* ${usedPrefix + command} correo@ejemplo.com`)
@@ -6,8 +6,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
     await m.react('📥')
 
     try {
-        const key = "sasuke"
-        const { data } = await axios.get(`https://api.evogb.org/tools/tempmail-read?email=${encodeURIComponent(text)}&key=${key}`)
+        const data = await evoGet('/tools/tempmail-read', { email: text })
 
         if (!data.status || !data.result || data.result.length === 0) {
             await m.react('📭')

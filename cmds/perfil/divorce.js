@@ -1,5 +1,4 @@
-var handler = async (client, { conn, m }) => { // Usamos los mismos parámetros que los otros
-    const db = global.db.data
+var handler = async (m, { db }) => {
     const userId = m.sender
     const partnerId = db.users[userId]?.marry
     

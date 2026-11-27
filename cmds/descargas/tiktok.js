@@ -1,50 +1,31 @@
-import axios from 'axios';
+import { apiSucceeded, evoGet, extractMediaItem, extractMediaUrl } from '../../core/evogb.js'
 
-var handler = async (m, { conn, text, usedPrefix, command }) => {
-    // En tu formato, 'from' es m.chat y 'sock' es conn
-    if (!text) return conn.sendMessage(m.chat, { text: `¿Qué buscamos? Ejemplo: ${usedPrefix + command} clips free fire` });
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+    const query = text ? text.trim() : (m.quoted?.text || null)
+    if (!query) return m.reply(`📥 Ingresa el enlace del TikTok.\nEjemplo: ${usedPrefix + command} https://www.tiktok.com/...`)
 
-    const RAPID_KEY = "e774e5f65fmsh8a64771078f8baap19a40cjsn79a68c1e252f";
-    const RAPID_HOST = "tiktok-scraper7.p.rapidapi.com";
-
-    await m.react("🔍");
-
+    const endpoint = command === 'tiktokv2' || command === 'tt2' ? '/dl/tiktokv2' : '/dl/tiktok'
     try {
-        const response = await axios.get(`https://${RAPID_HOST}/feed/search`, {
-            params: { keywords: text, region: 'mx', count: '5' },
-            headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
-        });
+        const data = await evoGet(endpoint, { url: query })
+        if (!apiSucceeded(data)) return m.reply('⚠️ No se pudo descargar ese TikTok.')
 
-        const videos = response.data.data;
-        if (!videos || videos.length === 0) return conn.sendMessage(m.chat, { text: '❌ Sin resultados.' });
+        const video = extractMediaItem(data)
+        const videoUrl = extractMediaUrl(data)
+        if (!videoUrl) return m.reply('⚠️ La API no devolvió un enlace de video.')
 
-        for (let i = 0; i < videos.length; i++) {
-            try {
-                const videoUrl = videos[i].play;
-                if (!videoUrl) continue;
-
-                await conn.sendMessage(m.chat, { 
-                    video: { url: videoUrl }, 
-                    caption: `🎬 *Video [${i + 1}/5]*\n📌 ${videos[i].title || 'TikTok'}` 
-                }, { quoted: m });
-
-                // Delay para no saturar tu RAM de 4GB
-                await new Promise(res => setTimeout(res, 4000));
-
-            } catch (err) {
-                console.log(`Error en video ${i}: ${err.message}`);
-            }
-        }
-        await m.react("✅");
-
+        await conn.sendMessage(m.chat, {
+            video: { url: videoUrl },
+            caption: `🎬 *TikTok*\n${video.title || video.description || ''}`,
+            mimetype: video.mimetype || 'video/mp4'
+        }, { quoted: m })
     } catch (e) {
-        console.error(e);
-        await conn.sendMessage(m.chat, { text: '❌ Error de conexión con la API de TikTok.' });
+        console.error(e.message)
+        return m.reply('⚠️ Error al conectar con Evo para descargar TikTok.')
     }
 }
 
-handler.help = ['tiktok']
+handler.help = ['tiktok <enlace>', 'tiktokv2 <enlace>']
 handler.tags = ['descargas']
-handler.command = ['tiktok', 'tt', 'tk']
+handler.command = ['tiktok', 'tt', 'tk', 'tiktokv2', 'tt2']
 
 export default handler

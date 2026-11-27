@@ -8,9 +8,36 @@ import path from 'path'
 
 const dbPath = path.join(process.cwd(), 'database.json')
 
+const isRecord = value => value && typeof value === 'object' && !Array.isArray(value)
+
+export function normalizeDatabase(database = {}) {
+    const source = isRecord(database) ? database : {}
+    const legacyData = isRecord(source.data) ? source.data : {}
+    const users = isRecord(source.users) ? source.users : {}
+    const legacyUsers = isRecord(legacyData.users) ? legacyData.users : {}
+    const chats = isRecord(source.chats) ? source.chats : {}
+    const legacyChats = isRecord(legacyData.chats) ? legacyData.chats : {}
+    const stats = isRecord(source.stats) ? source.stats : {}
+    const legacyStats = isRecord(legacyData.stats) ? legacyData.stats : {}
+    const settings = isRecord(source.settings) ? source.settings : {}
+    const legacySettings = isRecord(legacyData.settings) ? legacyData.settings : {}
+    const normalized = {
+        ...source,
+        users: { ...users, ...legacyUsers },
+        chats: { ...chats, ...legacyChats },
+        stats: { totalCommands: 0, startTime: Date.now(), ...stats, ...legacyStats },
+        settings: { status: true, pconly: false, gconly: false, anticall: true, ...settings, ...legacySettings }
+    }
+
+    delete normalized.data
+    return normalized
+}
+
 /**
  * 📈 LÓGICA DE NIVELES Y XP
  */
+export const MAX_LEVEL = 500
+
 const xpRange = (level, multiplier = 36) => {
     if (level < 0) return { min: -1, xp: 0, max: -1 }
     let min = Math.pow(level, 2) * multiplier
@@ -19,45 +46,58 @@ const xpRange = (level, multiplier = 36) => {
     return { min, max, xp }
 }
 
-const initDB = () => {
-    if (!fs.existsSync(dbPath)) {
-        const initialStructure = {
-            users: {},
-            chats: {},
-            stats: {
-                totalCommands: 0,
-                startTime: Date.now()
-            },
-            settings: {
-                status: true,
-                pconly: false,
-                gconly: false,
-                anticall: true
-            }
-        }
-        fs.writeFileSync(dbPath, JSON.stringify(initialStructure, null, 2))
-        console.log('📂 [SISTEMA] Base de datos inicializada.')
+export function addExperience(user, amount = 10) {
+    if (!user || typeof user !== 'object') return 0
+
+    const storedLevel = Number(user.level)
+    const storedExp = Number(user.exp)
+    const reward = Number(amount)
+    user.level = Math.min(MAX_LEVEL, Math.max(0, Number.isFinite(storedLevel) ? Math.floor(storedLevel) : 0))
+    user.exp = Math.max(0, Number.isFinite(storedExp) ? storedExp : 0)
+    user.exp = Math.min(xpRange(MAX_LEVEL).min, user.exp + (user.level < MAX_LEVEL && Number.isFinite(reward) ? Math.max(0, reward) : 0))
+
+    while (user.level < MAX_LEVEL && user.exp >= xpRange(user.level).max) {
+        user.level++
     }
 
+    return user.level
+}
+
+const initDB = () => {
+    const databaseExists = fs.existsSync(dbPath)
+    let database = {}
+    let needsMigration = false
     try {
-        global.db = JSON.parse(fs.readFileSync(dbPath))
+        if (databaseExists) {
+            database = JSON.parse(fs.readFileSync(dbPath, 'utf8'))
+            needsMigration = isRecord(database) && Object.hasOwn(database, 'data')
+        }
     } catch (e) {
         console.error('⚠️ [ERROR DB] No se pudo leer la base de datos:', e)
-        global.db = { users: {}, chats: {}, stats: {}, settings: {} }
+    }
+
+    global.db = normalizeDatabase(database)
+    if (!databaseExists || needsMigration) {
+        fs.writeFileSync(dbPath, JSON.stringify(global.db, null, 2))
+        if (!databaseExists) console.log('📂 [SISTEMA] Base de datos inicializada.')
     }
 
     // Guardado automático cada 45 segundos
-    setInterval(() => {
+    const saveInterval = setInterval(() => {
         try {
             fs.writeFileSync(dbPath, JSON.stringify(global.db, null, 2))
         } catch (err) {
             console.error('⚠️ [ERROR DB] Falló el guardado automático:', err)
         }
     }, 45000)
+    saveInterval.unref?.()
 }
 
 const loadDatabase = (m) => {
     try {
+        if (!global.db || global.db.data || !isRecord(global.db.users) || !isRecord(global.db.chats) || !isRecord(global.db.stats) || !isRecord(global.db.settings)) {
+            global.db = normalizeDatabase(global.db)
+        }
         const isNumber = x => typeof x === 'number' && !isNaN(x)
         let user = global.db.users[m.sender]
         
@@ -129,11 +169,13 @@ const loadDatabase = (m) => {
                 if (!('welcome' in chat)) chat.welcome = true
                 if (!('antiLink' in chat)) chat.antiLink = false
                 if (!('isBanned' in chat)) chat.isBanned = false
+                if (!('nsfw' in chat)) chat.nsfw = false
             } else {
                 global.db.chats[m.chat] = {
                     welcome: true,
                     antiLink: false,
-                    isBanned: false
+                    isBanned: false,
+                    nsfw: false
                 }
             }
         }

@@ -1,8 +1,6 @@
-import axios from 'axios'
+import { evoGet } from '../../core/evogb.js'
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
-    const key = "sasuke"
-
     // --- LÓGICA PARA EL CLIMA ---
     if (/clima|weather/i.test(command)) {
         if (!text) return m.reply(`*🏮 [ SISTEMA Charly ]*\n\n*¿De qué ciudad deseas saber el clima?*\n*Ejemplo:* ${usedPrefix + command} Mexico`)
@@ -10,7 +8,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
         await m.react('🌤️')
         try {
             // Usamos la versión 'full' como en tu captura
-            const { data } = await axios.get(`https://api.evogb.org/tools/clima?city=${encodeURIComponent(text)}&version=full&key=${key}`)
+            const data = await evoGet('/tools/clima', { city: text, version: 'full' }, { includeApiKey: false })
             if (!data.status) return m.reply('❌ No se pudo obtener el clima para esa ubicación.')
 
             const res = data.result
@@ -40,10 +38,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
 
         await m.react('🔗')
         try {
-            let apiUrl = `https://api.evogb.org/tools/shortlink?url=${encodeURIComponent(url)}&key=${key}`
-            if (alias) apiUrl += `&alias=${encodeURIComponent(alias)}`
-
-            const { data } = await axios.get(apiUrl)
+            const data = await evoGet('/tools/shortlink', { url, alias }, { includeApiKey: false })
             if (!data.status) return m.reply('⚠️ Error: Alias en uso o link inválido.')
 
             let txt = `┏━━━━━━━━━━━━━━━━┓\n`

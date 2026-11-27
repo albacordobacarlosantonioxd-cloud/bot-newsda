@@ -8,14 +8,7 @@ var handler = async (m, { conn, isBotAdmin }) => {
 
     try {
         // 3. Borrado usando la llave (key) directamente del objeto citado
-        await conn.sendMessage(m.chat, { 
-            delete: {
-                remoteJid: m.chat,
-                fromMe: quoted.fromMe,
-                id: quoted.id,
-                participant: quoted.sender
-            }
-        })
+        await conn.sendMessage(m.chat, { delete: quoted.key })
 
     } catch (e) {
         console.error("Error al borrar:", e)
@@ -28,6 +21,5 @@ handler.tags = ['group']
 handler.command = ['del', 'delete', 'borrar']
 handler.group = true
 handler.admin = true 
-handler.botAdmin = true
 
 export default handler

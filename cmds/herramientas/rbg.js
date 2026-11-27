@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoPostForm } from '../../core/evogb.js'
 import { uploadToEvo } from '../../core/uploader.js'
 
 var handler = async (m, { conn }) => {
@@ -20,7 +20,7 @@ var handler = async (m, { conn }) => {
         if (!urlRemota) throw new Error('Error al subir la imagen al servidor.')
 
         // 3. Llamada a la API de RemoveBG usando el enlace remoto
-        const { data } = await axios.get(`https://api.evogb.org/tools/removebg?url=${encodeURIComponent(urlRemota)}&key=sasuke`)
+        const data = await evoPostForm('/tools/removebg', { method: 'url', url: urlRemota })
 
         if (!data.status) return m.reply('❌ *La API no pudo procesar la imagen. Intenta con una foto más clara.*')
 

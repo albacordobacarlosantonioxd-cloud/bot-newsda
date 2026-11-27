@@ -1,73 +1,64 @@
-import axios from 'axios'
+import { apiSucceeded, evoGet, extractMediaItem, extractMediaUrl } from '../../core/evogb.js'
+
+const endpoints = {
+    ig: '/dl/instagram',
+    instagram: '/dl/instagram',
+    fb: '/dl/facebookv2',
+    facebook: '/dl/facebookv2',
+    facebookv1: '/dl/facebook',
+    fbv1: '/dl/facebook',
+    twitter: '/dl/twitter',
+    x: '/dl/twitter',
+    threads: '/dl/threads',
+    dropbox: '/dl/dropbox',
+    soundcloud: '/dl/soundcloud',
+    sc: '/dl/soundcloud',
+    terabox: '/dl/terabox',
+    deezer: '/dl/deezer'
+}
+
+const audioEndpoints = new Set(['/dl/soundcloud', '/dl/deezer'])
+const documentEndpoints = new Set(['/dl/dropbox', '/dl/terabox'])
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
     let query = text ? text.trim() : (m.quoted?.text || null)
-    if (!query) return m.reply(`✨ *Ingresa un enlace para descargar*\n\n> *Ejemplo:* ${usedPrefix + command} https://...`)
+    if (!query) return m.reply(`✨ *Ingresa el enlace para descargar*\n\n> *Ejemplo:* ${usedPrefix + command} https://...`)
 
-    await m.react('⏳')
+    const endpoint = endpoints[command]
+    if (!endpoint) return m.reply('⚠️ Este comando de descarga no está configurado.')
 
     try {
-        const key = "sasuke" 
-        let endpoint = ''
+        const data = await evoGet(endpoint, { url: query }, { includeApiKey: endpoint !== '/dl/deezer' })
+        if (!apiSucceeded(data)) return m.reply('⚠️ *La API no devolvió un resultado válido.*')
 
-        // 1. Identificamos el tipo de descarga
-        if (/ig|instagram/i.test(command)) {
-            endpoint = `https://api.evogb.org/dl/instagram?url=${encodeURIComponent(query)}&key=${key}`
-        } else if (/fb|facebook/i.test(command)) {
-            endpoint = `https://api.evogb.org/dl/facebook?url=${encodeURIComponent(query)}&key=${key}`
+        const media = extractMediaItem(data)
+        const downloadUrl = extractMediaUrl(data)
+        if (!downloadUrl) return m.reply('⚠️ *No se encontró el enlace de descarga.*')
+
+        const title = media.title || media.name || media.fileName || command
+        const mediaType = `${media.type || media.mimetype || media.mimeType || ''}`.toLowerCase()
+        const caption = `📥 *${title}*\n\n⚡ *Charly Developer*`
+        let message
+
+        if (audioEndpoints.has(endpoint) || /audio/i.test(mediaType)) {
+            message = { audio: { url: downloadUrl }, mimetype: media.mimetype || 'audio/mpeg', fileName: `${title}.mp3` }
+        } else if (/image/i.test(mediaType) || /\.(jpe?g|png|webp)(\?|$)/i.test(downloadUrl)) {
+            message = { image: { url: downloadUrl }, caption }
+        } else if (documentEndpoints.has(endpoint)) {
+            message = { document: { url: downloadUrl }, fileName: media.fileName || media.filename || `${title}`, mimetype: media.mimetype || media.mimeType || 'application/octet-stream', caption }
+        } else {
+            message = { video: { url: downloadUrl }, caption, mimetype: media.mimetype || 'video/mp4' }
         }
 
-        const { data } = await axios.get(endpoint)
-        
-        if (!data.status) {
-            await m.react('❌')
-            return m.reply('⚠️ *La API no devolvió un resultado válido.*')
-        }
-
-        let downloadUrl = ''
-        let title = 'Archivo Multimedia'
-
-        // 2. Extraemos la URL según la plataforma (CORREGIDO)
-        if (/ig|instagram/i.test(command)) {
-            // Instagram suele devolver un array en .data o .result
-            downloadUrl = data.data?.[0]?.url || data.result?.[0]?.url
-            title = 'Instagram Reel'
-        } else if (/fb|facebook/i.test(command)) {
-            // Facebook en EvoGB suele usar .result o .resultados
-            downloadUrl = data.result?.[0]?.url || data.resultados?.[0]?.url || data.data?.[0]?.url
-            title = 'Facebook Video'
-        } // <--- AQUÍ FALTABA CERRAR LA LLAVE
-
-        if (!downloadUrl) {
-            await m.react('❌')
-            return m.reply('⚠️ *No se pudo encontrar el enlace de descarga.*')
-        }
-
-        let ui = `┏━━━━━━━━━━━━━━━━┓\n`
-        ui += `┃    📥 *DESCARGADOR* ┃\n`
-        ui += `┗━━━━━━━━━━━━━━━━┛\n\n`
-        ui += `📝 *INFO:* ${title}\n\n`
-        ui += `━━━━━━━━━━━━━━━━━━━━\n`
-        ui += `⚡ *𝘽𝙮 Charly Developer*\n`
-        ui += `📡 *Charly Developers*`
-
-        await conn.sendMessage(m.chat, { 
-            video: { url: downloadUrl }, 
-            caption: ui,
-            mimetype: 'video/mp4'
-        }, { quoted: m })
-
-        await m.react('✅')
-
+        await conn.sendMessage(m.chat, message, { quoted: m })
     } catch (e) {
-        console.error(e)
-        await m.react('❌')
-        m.reply('⚠️ *Ocurrió un error al conectar con la API.*')
+        console.error(e.message)
+        return m.reply('⚠️ *Ocurrió un error al conectar con la API de Evo.*')
     }
 }
 
-handler.help = ['ig', 'fb']
+handler.help = Object.keys(endpoints)
 handler.tags = ['downloader']
-handler.command = ['ig', 'instagram', 'fb', 'facebook']
+handler.command = Object.keys(endpoints)
 
 export default handler

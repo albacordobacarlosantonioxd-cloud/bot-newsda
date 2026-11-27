@@ -14,6 +14,7 @@ handler.help = ['kick']
 handler.tags = ['admin']
 handler.command = ['kick', 'sacar', 'eliminar']
 handler.group = true
+handler.admin = true
 handler.botAdmin = true
 
 export default handler

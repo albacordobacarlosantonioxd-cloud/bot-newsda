@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoPostForm } from '../../core/evogb.js'
 import { uploadToEvo } from '../../core/uploader.js'
 
 var handler = async (m, { conn }) => {
@@ -21,7 +21,7 @@ var handler = async (m, { conn }) => {
 
         // 3. Petición a la API de compresión de PDF
         // Según tu captura, usamos el método de enlace remoto
-        const { data } = await axios.get(`https://api.evogb.org/tools/compress-pdf?url=${encodeURIComponent(urlRemota)}&key=sasuke`)
+        const data = await evoPostForm('/tools/compress-pdf', { method: 'url', url: urlRemota })
 
         if (!data.status) return m.reply('❌ *La API no pudo procesar este PDF.*')
 

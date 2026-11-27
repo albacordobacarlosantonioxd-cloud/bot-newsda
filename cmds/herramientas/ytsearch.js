@@ -1,54 +1,39 @@
-import axios from 'axios'
+import { apiSucceeded, evoGet } from '../../core/evogb.js'
+import { extractFirstSearchResult, extractYouTubeUrl, formatMediaDetails, getMediaThumbnail } from '../../core/downloaders.js'
 
-var handler = async (m, { conn, text, usedPrefix, command }) => {
-    let query = text ? text.trim() : (m.quoted?.text || null)
-    if (!query) return m.reply(`✨ *Ingresa lo que deseas buscar*\n\n> *Ejemplo:* ${usedPrefix + command} Lupita`)
-
-    await m.react('🔍')
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+    const query = String(text || m.quoted?.text || '').trim()
+    if (!query) return m.reply(`Escribe lo que deseas buscar.\nEjemplo: ${usedPrefix + command} Lupita`)
 
     try {
-        const key = "sasuke" 
-        
-        const { data } = await axios.get(`https://api.evogb.org/search/yt?query=${encodeURIComponent(query)}&key=${key}`)
-        
-        if (!data.status || !data.result.length) {
-            await m.react('❌')
-            return m.reply('⚠️ *No se encontraron resultados.*')
-        }
+        const data = await evoGet('/search/yt', { query })
+        if (!apiSucceeded(data)) return m.reply('No se encontraron resultados de YouTube.')
 
-        let ui = `┏━━━━━━━━━━━━━━━━┓\n`
-        ui += `┃    🎥 *YOUTUBE SEARCH* ┃\n`
-        ui += `┗━━━━━━━━━━━━━━━━┛\n\n`
-
-        data.result.slice(0, 6).forEach((vid, i) => {
-            ui += `*${i + 1}.* ${vid.title}\n`
-            ui += `👤 *Autor:* ${vid.author || vid.autor}\n`
-            ui += `⏱️ *Duración:* ${vid.duration}\n`
-            ui += `👁️ *Vistas:* ${vid.views}\n`
-            ui += `🔗 *Link:* ${vid.url}\n\n`
+        const firstResult = extractFirstSearchResult(data)
+        if (!firstResult) return m.reply('No se encontraron resultados de YouTube.')
+        const results = Array.isArray(data.result) ? data.result : Array.isArray(data.data) ? data.data : [firstResult]
+        const lines = results.slice(0, 6).map((video, index) => {
+            const url = extractYouTubeUrl(video) || 'Enlace no disponible'
+            return `${index + 1}. ${formatMediaDetails(video, 'YouTube')}\nURL: ${url}`
         })
-
-        ui += `━━━━━━━━━━━━━━━━━━━━\n`
-        ui += `⚡ *𝘽𝙮 Charly Developer*\n`
-        ui += `📡 *Charly Developers*`
-
-        await conn.sendMessage(m.chat, { 
-            image: { url: data.result[0].banner || data.result[0].image }, 
-            caption: ui 
-        }, { quoted: m })
-
-        await m.react('✅')
-
-    } catch (e) {
-        console.error(e)
-        await m.react('❌')
-        m.reply('⚠️ *Error al conectar con la API de YouTube.*')
+        const caption = `Resultados de YouTube\n\n${lines[0]}`
+        const imageUrl = getMediaThumbnail(firstResult)
+        if (imageUrl) {
+            await conn.sendMessage(m.chat, { image: { url: imageUrl }, caption }, { quoted: m })
+            if (lines.length > 1) {
+                await conn.sendMessage(m.chat, { text: `Más resultados\n\n${lines.slice(1).join('\n\n')}` }, { quoted: m })
+            }
+        } else {
+            await conn.sendMessage(m.chat, { text: `Resultados de YouTube\n\n${lines.join('\n\n')}` }, { quoted: m })
+        }
+    } catch (error) {
+        console.error('[YTSEARCH]', error.message)
+        return m.reply('No se pudo conectar con la búsqueda de YouTube.')
     }
 }
 
-handler.help = ['ytsearch', 'yt']
-handler.tags = ['search']
-// Configurado como array para tu core/loader.js
+handler.help = ['ytsearch <búsqueda>']
+handler.tags = ['herramientas']
 handler.command = ['ytsearch', 'yts', 'youtube', 'yt']
 
 export default handler

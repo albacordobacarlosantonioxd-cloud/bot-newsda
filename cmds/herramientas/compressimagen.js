@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { evoPostForm } from '../../core/evogb.js'
 import { uploadToEvo } from '../../core/uploader.js' // Importamos tu uploader central
 
 var handler = async (m, { conn }) => {
@@ -20,7 +20,7 @@ var handler = async (m, { conn }) => {
         if (!urlParaComprimir) throw new Error('Error al subir la imagen al servidor.')
 
         // 3. Petición a la API de compresión usando la URL generada
-        const { data } = await axios.get(`https://api.evogb.org/tools/compress-image?url=${encodeURIComponent(urlParaComprimir)}&key=sasuke`)
+        const data = await evoPostForm('/tools/compress-image', { method: 'url', url: urlParaComprimir })
 
         if (!data.status) return m.reply('❌ *La API no pudo procesar la imagen.*')
 

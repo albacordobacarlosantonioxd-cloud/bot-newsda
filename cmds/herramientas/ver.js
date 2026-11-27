@@ -25,7 +25,7 @@ var handler = async (m, { conn }) => {
         if (!mediaBuffer) {
             // Reconstruimos el objeto con la estructura exacta que Baileys exige
             const msgToDownload = {
-                key: m.key,
+                key: q.key || m.key,
                 message: q.message?.viewOnceMessage?.message || q.message?.viewOnceMessageV2?.message || q.message
             }
             
@@ -35,7 +35,7 @@ var handler = async (m, { conn }) => {
                 {},
                 { 
                     logger: console,
-                    reconnectMode: 'on-error'
+                    reuploadRequest: conn.updateMediaMessage?.bind(conn)
                 }
             ).catch((err) => {
                 console.error("Error directo de Baileys:", err.message)
@@ -68,6 +68,5 @@ handler.tags = ['tools']
 handler.command = ['ver', 'revelar', 'vv', 'viewonce']
 handler.group = true
 handler.admin = true
-handler.botAdmin = true
 
 export default handler

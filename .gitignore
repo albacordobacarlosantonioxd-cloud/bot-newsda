@@ -1,1 +1,6 @@
 node_modules
+.env
+Sessions/
+database.json
+tmp/
+endpoinds.txt

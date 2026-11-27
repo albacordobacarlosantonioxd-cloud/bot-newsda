@@ -1,18 +1,15 @@
-import fetch from "node-fetch"
+import { evoGet } from '../../core/evogb.js'
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
     const dev = "𝘽𝙮 carlos"
     const chn = "Charly 𝘿𝙚𝙫𝙚𝙡𝙤𝙥𝙚𝙧𝙨"
-    const key = "sasuke" 
-
     if (!text) return conn.reply(m.chat, `*🔍 ¿Qué imágenes deseas buscar?*\n*Ejemplo:* ${usedPrefix + command} Messi`, m)
 
     // Usamos el m.react que inyectamos en smsg
     await m.react('🔍')
 
     try {
-        let res = await fetch(`https://api.evogb.org/search/googleimage?query=${encodeURIComponent(text)}&key=${key}`)
-        let json = await res.json()
+        let json = await evoGet('/search/googleimage', { query: text }, { includeApiKey: false })
 
         if (!json.status || !json.result || json.result.length === 0) {
             await m.react('❌')
